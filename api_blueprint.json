@@ -1,0 +1,79 @@
+{
+  "functions": [
+    {
+      "name": "afeSpiRawWrite",
+      "opcode_enum": "OPCODE_RAW_WRITE",
+      "prototype": "u32 afeSpiRawWrite(u8 afeInst, u16 addr, u8 data)",
+      "payload": [
+        {"name": "afeInst", "type": "u8"},
+        {"name": "addr", "type": "u16"},
+        {"name": "data", "type": "u8"}
+      ],
+      "driver_call": "afeSpiRawWrite(afeInst, addr, data)"
+    },
+    {
+      "name": "afeSpiRawRead",
+      "opcode_enum": "OPCODE_RAW_READ",
+      "prototype": "u32 afeSpiRawRead(u8 afeInst, u16 addr, u8 *readVal)",
+      "payload": [
+        {"name": "afeInst", "type": "u8"},
+        {"name": "addr", "type": "u16"}
+      ],
+      "driver_call": "afeSpiRawRead(afeInst, addr, (uint8_t *)HW_RESULT_BASE)"
+    },
+    {
+      "name": "afeSpiBurstWrite",
+      "opcode_enum": "OPCODE_BURST_WRITE",
+      "prototype": "u32 afeSpiBurstWrite(u8 afeInst, u16 addr, u8 *data, u16 size)",
+      "payload": [
+        {"name": "afeInst", "type": "u8"},
+        {"name": "addr", "type": "u16"},
+        {"name": "size", "type": "u16"}
+      ],
+      "driver_call": "afeSpiBurstWrite(afeInst, addr, (uint8_t *)&operands[{offset}], size)"
+    },
+    {
+      "name": "afeSpiBurstRead",
+      "opcode_enum": "OPCODE_BURST_READ",
+      "prototype": "u32 afeSpiBurstRead(u8 afeInst, u16 addr, u16 size, u8 *data)",
+      "payload": [
+        {"name": "afeInst", "type": "u8"},
+        {"name": "addr", "type": "u16"},
+        {"name": "size", "type": "u16"}
+      ],
+      "driver_call": "afeSpiBurstRead(afeInst, addr, size, (uint8_t *)HW_RESULT_BASE)"
+    },
+    {
+      "name": "afeSpiRawWriteMulti",
+      "opcode_enum": "OPCODE_RAW_WRITE_MULTI",
+      "prototype": "u32 afeSpiRawWriteMulti(u8 sel, u16 addr, u8 data)",
+      "payload": [
+        {"name": "sel", "type": "u8"},
+        {"name": "addr", "type": "u16"},
+        {"name": "data", "type": "u8"}
+      ],
+      "driver_call": "afeSpiRawWriteMulti(sel, addr, data)"
+    },
+    {
+      "name": "afeSpiRawReadMulti",
+      "opcode_enum": "OPCODE_RAW_READ_MULTI",
+      "prototype": "u32 afeSpiRawReadMulti(u8 sel, u16 addr, u8 *readVal)",
+      "payload": [
+        {"name": "sel", "type": "u8"},
+        {"name": "addr", "type": "u16"}
+      ],
+      "driver_call": "afeSpiRawReadMulti(sel, addr, (uint8_t *)HW_RESULT_BASE)"
+    },
+    {
+      "name": "afeSpiBurstWriteMulti",
+      "opcode_enum": "OPCODE_BURST_WRITE_MULTI",
+      "prototype": "u32 afeSpiBurstWriteMulti(u8 sel, u16 addr, u8 *data, u16 size)",
+      "payload": [
+        {"name": "sel", "type": "u8"},
+        {"name": "addr", "type": "u16"},
+        {"name": "size", "type": "u16"}
+      ],
+      "driver_call": "afeSpiBurstWriteMulti(sel, addr, (uint8_t *)&operands[{offset}], size)"
+    }
+  ]
+}
