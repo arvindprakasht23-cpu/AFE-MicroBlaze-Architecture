@@ -1,0 +1,106 @@
+{
+  "commands": [
+    {
+      "name": "spiRawWrite",
+      "opcode": "OPCODE_RAW_WRITE",
+      "driver_func": "afeSpiRawWrite",
+      "args": [
+        {"type": "U8", "name": "afeInst"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U8", "name": "data"}
+      ]
+    },
+    {
+      "name": "spiRawRead",
+      "opcode": "OPCODE_RAW_READ",
+      "driver_func": "afeSpiRawRead",
+      "args": [
+        {"type": "U8", "name": "afeInst"},
+        {"type": "U16", "name": "addr"},
+        {"type": "HW_RESULT", "name": "readVal"}
+      ]
+    },
+    {
+      "name": "spiBurstWrite",
+      "opcode": "OPCODE_BURST_WRITE",
+      "driver_func": "afeSpiBurstWrite",
+      "args": [
+        {"type": "U8", "name": "afeInst"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U16", "name": "dataArraySize"},
+        {"type": "ARRAY_U8", "name": "data"}
+      ]
+    },
+    {
+      "name": "spiBurstRead",
+      "opcode": "OPCODE_BURST_READ",
+      "driver_func": "afeSpiBurstRead",
+      "args": [
+        {"type": "U8", "name": "afeInst"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U16", "name": "dataArraySize"},
+        {"type": "HW_RESULT", "name": "data"}
+      ]
+    },
+    {
+      "name": "spiRawWriteMulti",
+      "opcode": "OPCODE_RAW_WRITE_MULTI",
+      "driver_func": "afeSpiRawWriteMulti",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U8", "name": "data"}
+      ]
+    },
+    {
+      "name": "spiRawReadMulti",
+      "opcode": "OPCODE_RAW_READ_MULTI",
+      "driver_func": "afeSpiRawReadMulti",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"},
+        {"type": "U16", "name": "addr"},
+        {"type": "HW_RESULT", "name": "readVal"}
+      ]
+    },
+    {
+      "name": "spiBurstWriteMulti",
+      "opcode": "OPCODE_BURST_WRITE_MULTI",
+      "driver_func": "afeSpiBurstWriteMulti",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U16", "name": "dataArraySize"},
+        {"type": "ARRAY_U8", "name": "data"}
+      ]
+    },
+    { 
+       "name": "spiMaskedWrite",
+      "opcode": "OPCODE_SPI_MASKED_WRITE",
+      "driver_func": "afeSpiMaskedWrite",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"},
+        {"type": "U16", "name": "addr"},
+        {"type": "U8", "name": "Mask"},
+        {"type": "U8", "name": "data"}
+      ]
+	}  
+	,
+    { 
+       "name": "spiSoftReset",
+      "opcode": "OPCODE_SPI_SOFT_RESET",
+      "driver_func": "afeSpiSoftReset",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"}
+      ]
+	} ,
+    {
+      "name": "spiSetTimeout",
+      "opcode": "OPCODE_SPI_SET_TIMEOUT",
+      "driver_func": "afeSpiSetTimeout",
+      "args": [
+        {"type": "U8", "name": "afeInstSel"},
+        {"type": "U32", "name": "timeoutMs"}
+      ]
+    }  
+  ]
+}
