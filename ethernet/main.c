@@ -32,17 +32,17 @@ void execute_core_logic(char *payload, char *response_buffer, int is_ethernet) {
     if (status == TI_AFE_RET_EXEC_PASS) {
         if (!is_ethernet) xil_printf("[MAIN] SUCCESS: Opcode 0x%02X\r\n", opcode);
 
-        if (opcode == OPCODE_RAW_READ) { 
+        if (opcode == OPCODE_SPI_RAW_READ) { 
             sprintf(response_buffer, "SUCCESS: Read Val = 0x%02X\r\n", HW_RESULT_BASE[0]);
             if (!is_ethernet) xil_printf("   -> Result: 0x%02X\r\n", HW_RESULT_BASE[0]);
         } 
-        else if (opcode == OPCODE_RAW_READ_MULTI) { 
+        else if (opcode == OPCODE_SPI_RAW_READ_MULTI) { 
             sprintf(response_buffer, "SUCCESS: Multi Read Complete. First Byte = 0x%02X\r\n", HW_RESULT_BASE[0]);
             if (!is_ethernet) {
                 for (int i = 0; i < NUM_SPI; i++) xil_printf("      SPI[%d]: 0x%02X\r\n", i, HW_RESULT_BASE[i]);
             }
         }
-        else if (opcode == OPCODE_BURST_READ) { 
+        else if (opcode == OPCODE_SPI_BURST_READ) { 
             sprintf(response_buffer, "SUCCESS: Burst Read Complete.\r\n");
             if (!is_ethernet) {
                 uint16_t size;
@@ -81,31 +81,32 @@ int main() {
         uart_poll();
         eth_poll();
 
-        // --- THE DISPATCHER / ROUTER ---
-        if (uart_get_message(&active_msg) || eth_get_message(&active_msg)) {
+        // --- PATH 1: PROCESS UART TERMINAL COMMANDS ---
+        if (uart_get_message(&active_msg)) {
             
-            // Log Ethernet traffic to the local terminal for debugging
-            if (active_msg.source_id == SRC_ETHERNET) {
-                xil_printf("\r\n[TCP RECV]: %s\r\n", active_msg.payload);
-            }
-
             // Ignore empty "Enter" key presses
             if (active_msg.length > 0) {
-                // 1. Execute the agnostic payload
-                int is_eth = (active_msg.source_id == SRC_ETHERNET);
-                execute_core_logic(active_msg.payload, response_buffer, is_eth);
+                // Execute and print response to local terminal
+                execute_core_logic(active_msg.payload, response_buffer, 0); // 0 = not ethernet
+                xil_printf("%s", response_buffer);
             }
-
-            // 2. Route the response back to the correct source
-            if (active_msg.source_id == SRC_UART) {
-                if (active_msg.length > 0) xil_printf("%s", response_buffer);
-                xil_printf("CMD> "); // Reprint the terminal prompt
-            } 
-            else if (active_msg.source_id == SRC_ETHERNET) {
-                eth_send_msg(response_buffer);
-                xil_printf("CMD> "); // Restore the local terminal prompt after TCP event
-            }
+            xil_printf("CMD> "); // Reprint the terminal prompt
         }
+
+        // --- PATH 2: PROCESS ETHERNET TCP COMMANDS ---
+        if (eth_get_message(&active_msg)) {
+            
+            // Log Ethernet traffic to the local terminal for debugging
+            xil_printf("\r\n[TCP RECV]: %s\r\n", active_msg.payload);
+            
+            if (active_msg.length > 0) {
+                // Execute and send response over TCP socket
+                execute_core_logic(active_msg.payload, response_buffer, 1); // 1 = is ethernet
+                eth_send_msg(response_buffer);
+            }
+            xil_printf("CMD> "); // Restore the local terminal prompt after TCP event finishes
+        }
+        
     }
 
     return 0;
