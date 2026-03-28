@@ -8,23 +8,39 @@ TYPE_MAP = {
 }
 
 def generate_firmware():
-    with open('commands.json', 'r') as f:
-        data = json.load(f)
+    try:
+        with open('commands.json', 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print("Error: commands.json not found! Run header_to_json.py first.")
+        return
+
     commands = data['commands']
 
-    # 1. Generate api_wrapper.h
+    # 1. Generate api_wrapper.h (The Packed Structs)
     with open('api_wrapper.h', 'w') as f:
         f.write('#ifndef API_WRAPPER_H\n#define API_WRAPPER_H\n\n')
-        f.write('#include "xil_types.h"\n\n')
+        f.write('#include "xil_types.h"\n')
+        f.write('#include <stdint.h>\n\n')
         f.write('typedef u16 (*api_func_ptr)(volatile u8 *operands);\n\n')
+        
         f.write('typedef enum {\n')
         for i, cmd in enumerate(commands):
             f.write(f'    {cmd["opcode"]} = {i},\n')
         f.write('    API_TABLE_SIZE\n} opcode_t;\n\n')
-        f.write('extern api_func_ptr api_table[API_TABLE_SIZE];\n\n')
-        f.write('#endif\n')
 
-    # 2. Generate command_dict.c
+        for cmd in commands:
+            f.write(f'typedef struct __attribute__((packed)) {{\n')
+            for arg in cmd['args']:
+                if arg["type"] not in ["HW_RESULT", "ARRAY_U8"]:
+                    c_type = TYPE_MAP[arg["type"]]["c_type"]
+                    f.write(f'    {c_type}  {arg["name"]};\n')
+            f.write(f'}} Cmd_{cmd["name"]}_Args_t;\n\n')
+
+        f.write('extern api_func_ptr api_table[API_TABLE_SIZE];\n\n')
+        f.write('#endif // API_WRAPPER_H\n')
+
+    # 2. Generate command_dict.c (The Parser Array)
     with open('command_dict.c', 'w') as f:
         f.write('#include "command_dict.h"\n')
         f.write('#include "api_wrapper.h"\n\n')
@@ -39,34 +55,7 @@ def generate_firmware():
         f.write('};\n\n')
         f.write('const int DICT_SIZE = sizeof(cmd_dict) / sizeof(cmd_dict[0]);\n')
 
-    # 3. Generate afe_drivers.h
-    with open('afe_drivers.h', 'w') as f:
-        f.write('#ifndef AFE_DRIVERS_H\n#define AFE_DRIVERS_H\n\n')
-        f.write('#include <stdint.h>\n\n')
-        f.write('typedef enum RET_TYPE\n{\n')
-        f.write('    TI_AFE_RET_EXEC_PASS = 0,\n')
-        f.write('    TI_AFE_RET_EXEC_FAIL = 1\n')
-        f.write('} RetType_e;\n\n')
-        f.write('#define NUM_SPI 4\n\n')
-        for cmd in commands:
-            proto_args = []
-            for i, arg in enumerate(cmd['args']):
-                a_type = arg["type"]
-                a_name = arg["name"]
-                if a_type == "HW_RESULT":
-                    proto_args.append(f"uint8_t *{a_name}")
-                elif a_type == "ARRAY_U8":
-                    size_var = cmd['args'][i-1]["name"]
-                    proto_args.pop()
-                    proto_args.append(f"uint8_t *{a_name}")
-                    proto_args.append(f"uint16_t {size_var}")
-                else:
-                    proto_args.append(f'{TYPE_MAP[a_type]["c_type"]} {a_name}')
-            arg_str = ", ".join(proto_args) if proto_args else "void"
-            f.write(f'uint32_t {cmd["driver_func"]}({arg_str});\n')
-        f.write('\n#endif\n')
-
-    # 4. Generate api_wrapper.c
+    # 3. Generate api_wrapper.c (The Clean memcpy Action)
     with open('api_wrapper.c', 'w') as f:
         f.write('#include <string.h>\n')
         f.write('#include "api_wrapper.h"\n')
@@ -77,33 +66,41 @@ def generate_firmware():
         api_table_entries = []
         for cmd in commands:
             func_name = f"api_{cmd['driver_func']}_wrapper"
+            struct_name = f"Cmd_{cmd['name']}_Args_t"
             api_table_entries.append(func_name)
+            
             f.write(f'u16 {func_name}(volatile u8 *operands) {{\n')
-            offset = 0
+            
+            f.write(f'    {struct_name} args;\n')
+            f.write(f'    memcpy(&args, (const void *)operands, sizeof({struct_name}));\n')
+
             params = []
+            has_array = False
+            array_name, size_var = "", ""
+
             for i, arg in enumerate(cmd['args']):
                 a_type = arg["type"]
                 a_name = arg["name"]
+                
                 if a_type == "HW_RESULT":
                     params.append("(uint8_t *)HW_RESULT_BASE")
-                    continue
-                c_type = TYPE_MAP[a_type]["c_type"]
-                size = TYPE_MAP[a_type]["size"]
-                if a_type != "ARRAY_U8":
-                    f.write(f'    {c_type} {a_name};\n')
-                    f.write(f'    memcpy(&{a_name}, (const void *)&operands[{offset}], {size});\n')
-                    params.append(a_name)
-                    offset += size
-                else:
+                elif a_type == "ARRAY_U8":
+                    has_array = True
+                    array_name = a_name
                     size_var = cmd['args'][i-1]["name"]
-                    f.write(f'    uint8_t {a_name}[MAX_BURST_SIZE];\n')
-                    f.write(f'    if ({size_var} > MAX_BURST_SIZE) {{\n')
-                    f.write(f'        {size_var} = MAX_BURST_SIZE;\n')
-                    f.write(f'    }}\n')
-                    f.write(f'    memcpy({a_name}, (const void *)&operands[{offset}], {size_var});\n')
                     params.pop() 
-                    params.append(a_name)
-                    params.append(size_var)
+                    params.append(f"args.{size_var}")
+                    params.append(array_name)
+                else:
+                    params.append(f"args.{a_name}")
+
+            if has_array:
+                f.write(f'\n    if (args.{size_var} > MAX_BURST_SIZE) {{\n')
+                f.write(f'        args.{size_var} = MAX_BURST_SIZE;\n')
+                f.write(f'    }}\n')
+                f.write(f'    uint8_t {array_name}[MAX_BURST_SIZE];\n')
+                f.write(f'    memcpy({array_name}, (const void *)&operands[sizeof({struct_name})], args.{size_var});\n')
+
             param_str = ", ".join(params)
             f.write(f'\n    return (u16){cmd["driver_func"]}({param_str});\n')
             f.write('}\n\n')
@@ -112,7 +109,8 @@ def generate_firmware():
         for entry in api_table_entries:
             f.write(f'    {entry},\n')
         f.write('};\n')
-    print("Code Generated Successfully!")
+        
+    print("✅ Generator Success! Enterprise Firmware written to C files.")
 
 if __name__ == "__main__":
     generate_firmware()
