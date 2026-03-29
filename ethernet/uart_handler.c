@@ -28,6 +28,11 @@ void uart_init(void) {
 }
 
 void uart_poll(void) {
+    // -------------------------------------------------------------
+    // SECURITY LOCK: Do not read new characters from the hardware 
+    // -------------------------------------------------------------
+    if (uart_flag == 1) return; 
+
     if (!XUartLite_IsReceiveEmpty(XPAR_UARTLITE_0_BASEADDR)) {
         char c = XUartLite_ReadReg(XPAR_UARTLITE_0_BASEADDR, XUL_RX_FIFO_OFFSET);
         
@@ -56,7 +61,7 @@ int uart_get_message(Message_t *msg) {
         msg->length = strlen(uart_rx_buffer);
         strcpy(msg->payload, uart_rx_buffer);
         
-        uart_flag = 0;
+        uart_flag = 0; // Unlock the buffer for the next command
         return 1; 
     }
     return 0;
