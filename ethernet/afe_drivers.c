@@ -35,9 +35,19 @@ uint32_t afeSpiRawWriteMulti(uint8_t afeInstSel, uint16_t addr, uint8_t data) {
 
 uint32_t afeSpiRawReadMulti(uint8_t afeInstSel, uint16_t addr, uint8_t *readVal) {
     xil_printf("\r\n[DRIVER] afeSpiRawReadMulti: Sel=0x%02X, Addr=0x%04X\r\n", afeInstSel, addr);
+    
+    /* Zero out the array to prevent stale data ghosting on inactive IDs */
     for(int i = 0; i < NUM_SPI; i++) {
-        readVal[i] = 0x10 + i; 
+        readVal[i] = 0x00;
     }
+    
+    /* Direct Index Mapping: Insert data at the exact index of the active chip */
+    for(int i = 0; i < NUM_SPI; i++) { 
+        if ((afeInstSel >> i) & 0x01) {
+            readVal[i] = 0x10 + i; 
+        }
+    }
+    
     return TI_AFE_RET_EXEC_PASS;
 }
 

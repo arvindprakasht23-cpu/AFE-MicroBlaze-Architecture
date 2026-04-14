@@ -7,17 +7,21 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInst"
+                    "name": "afeInst",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
                 },
                 {
                     "type": "U8",
-                    "name": "data"
+                    "name": "data",
+                    "c_type": "uint8_t"
                 }
-            ]
+            ],
+            "has_result_struct": false
         },
         {
             "name": "spiRawRead",
@@ -26,17 +30,21 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInst"
+                    "name": "afeInst",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
                 },
                 {
-                    "type": "HW_RESULT",
-                    "name": "readVal"
+                    "type": "OUTPUT_VAL",
+                    "name": "readVal",
+                    "c_type": "uint8_t"
                 }
-            ]
+            ],
+            "has_result_struct": true
         },
         {
             "name": "spiBurstWrite",
@@ -45,21 +53,26 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInst"
+                    "name": "afeInst",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
+                },
+                {
+                    "type": "INPUT_ARRAY",
+                    "name": "data",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "dataArraySize"
-                },
-                {
-                    "type": "ARRAY_U8",
-                    "name": "data"
+                    "name": "dataArraySize",
+                    "c_type": "uint16_t"
                 }
-            ]
+            ],
+            "has_result_struct": false
         },
         {
             "name": "spiBurstRead",
@@ -68,21 +81,26 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInst"
+                    "name": "afeInst",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
                 },
                 {
                     "type": "U16",
-                    "name": "dataArraySize"
+                    "name": "dataArraySize",
+                    "c_type": "uint16_t"
                 },
                 {
-                    "type": "HW_RESULT",
-                    "name": "data"
+                    "type": "OUTPUT_ARRAY_BURST",
+                    "name": "data",
+                    "c_type": "uint8_t"
                 }
-            ]
+            ],
+            "has_result_struct": true
         },
         {
             "name": "spiRawWriteMulti",
@@ -91,17 +109,21 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInstSel"
+                    "name": "afeInstSel",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
                 },
                 {
                     "type": "U8",
-                    "name": "data"
+                    "name": "data",
+                    "c_type": "uint8_t"
                 }
-            ]
+            ],
+            "has_result_struct": false
         },
         {
             "name": "spiRawReadMulti",
@@ -110,17 +132,21 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInstSel"
+                    "name": "afeInstSel",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
                 },
                 {
-                    "type": "HW_RESULT",
-                    "name": "readVal"
+                    "type": "OUTPUT_ARRAY_MULTI",
+                    "name": "readVal",
+                    "c_type": "uint8_t"
                 }
-            ]
+            ],
+            "has_result_struct": true
         },
         {
             "name": "spiBurstWriteMulti",
@@ -129,21 +155,26 @@
             "args": [
                 {
                     "type": "U8",
-                    "name": "afeInstSel"
+                    "name": "afeInstSel",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "addr"
+                    "name": "addr",
+                    "c_type": "uint16_t"
+                },
+                {
+                    "type": "INPUT_ARRAY",
+                    "name": "data",
+                    "c_type": "uint8_t"
                 },
                 {
                     "type": "U16",
-                    "name": "dataArraySize"
-                },
-                {
-                    "type": "ARRAY_U8",
-                    "name": "data"
+                    "name": "dataArraySize",
+                    "c_type": "uint16_t"
                 }
-            ]
+            ],
+            "has_result_struct": false
         }
     ]
 }

@@ -1,5 +1,12 @@
+/*
+ * command_dict.c
+ * Author: PSG_TI_TEAM
+ *
+ * Command dictionary data layer for the UART string parser.
+ */
+
 #include "command_dict.h"
-#include "api_wrapper.h"
+#include "../core_logic/api_wrapper.h"
 
 const command_meta_t cmd_dict[] = {
     {"spiRawWrite", OPCODE_SPI_RAW_WRITE, 3, {ARG_U8, ARG_U16, ARG_U8, ARG_NONE, ARG_NONE}},

@@ -1,6 +1,62 @@
+# ==========================================
+# C / C++ Compiled Binaries & Objects
+# ==========================================
 *.exe
 *.out
+*.app
 *.o
+*.obj
+*.dll
+*.so
+*.a
+*.lib
+
+# ==========================================
+# Python Automation Toolchain
+# ==========================================
 __pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.env
+venv/
+env/
+
+# ==========================================
+# Xilinx Vivado & Vitis Ignore Rules
+# ==========================================
+# Logs and Journals
+*.jou
+*.log
+*.str
+
+# Hardware Handoff & Bitstreams (Comment out if you want to track .bit files)
+*.xsa
+*.bit
+*.pdi
+*.bmm
+
+# Vivado Directories
 .Xil/
+*.hw/
+*.ip_user_files/
+*.cache/
+*.sim/
+*.runs/
+
+# Vitis Workspace (Ignore the IDE metadata but keep your source code)
+workspace/.metadata/
+workspace/RemoteSystemsTempFiles/
+workspace/.jscsrc
+
+# ==========================================
+# Custom & OS Generated Files
+# ==========================================
 auto_push.bat
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

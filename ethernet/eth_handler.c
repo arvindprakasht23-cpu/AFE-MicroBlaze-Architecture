@@ -29,10 +29,11 @@ static err_t tcp_recv_callback(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, 
         return ERR_OK; 
     }
 
-    // -------------------------------------------------------------
-    // SECURITY LOCK: If the main loop hasn't read the last packet, 
-    // -------------------------------------------------------------
+    /* ------------------------------------------------------------- */
+    /* SECURITY LOCK: Drop packet if unhandled, but FREE the buffer  */
+    /* ------------------------------------------------------------- */
     if (eth_flag == 1) {
+        pbuf_free(p); 
         return ERR_OK; 
     }
 
@@ -87,7 +88,7 @@ int eth_get_message(Message_t *msg) {
         msg->length = strlen(eth_rx_buffer);
         strcpy(msg->payload, eth_rx_buffer);
         
-        eth_flag = 0; // Unlock the buffer for the next network packet
+        eth_flag = 0; 
         return 1;
     }
     return 0;
