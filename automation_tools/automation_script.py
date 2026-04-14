@@ -168,8 +168,6 @@ const command_meta_t cmd_dict[] = {\n""")
 
 #define MAX_BURST_SIZE 64\n\n""")
 
-        api_table_entries = []
-
         f.write("/* ------------------------------------------------------------------ */\n")
         f.write("/* Write wrappers — no result register written                        */\n")
         f.write("/* ------------------------------------------------------------------ */\n\n")
@@ -179,7 +177,6 @@ const command_meta_t cmd_dict[] = {\n""")
             
             func_name = f"api_{cmd['driver_func']}_wrapper"
             struct_name = f"Cmd_{cmd['name']}_Args_t"
-            api_table_entries.append((cmd["opcode"], func_name))
             
             f.write(f'u16 {func_name}(volatile u8 *operands) {{\n')
             f.write(f'    {struct_name} args;\n')
@@ -214,7 +211,6 @@ const command_meta_t cmd_dict[] = {\n""")
             
             func_name = f"api_{cmd['driver_func']}_wrapper"
             struct_name = f"Cmd_{cmd['name']}_Args_t"
-            api_table_entries.append((cmd["opcode"], func_name))
             
             f.write(f'u16 {func_name}(volatile u8 *operands) {{\n')
             f.write(f'    {struct_name} args;\n')
@@ -247,15 +243,15 @@ const command_meta_t cmd_dict[] = {\n""")
             f.write('}\n\n')
 
         f.write("/* ------------------------------------------------------------------ */\n")
-        f.write("/* API dispatch table — order must match opcode_t enum                */\n")
+        f.write("/* API dispatch table — order perfectly matches opcode_t enum         */\n")
         f.write("/* ------------------------------------------------------------------ */\n\n")
         f.write('api_func_ptr api_table[API_TABLE_SIZE] = {\n')
         
-        # Sort based on the integer value at the end of the opcode string to ensure alignment
-        api_table_entries.sort(key=lambda x: int(x[0].split('_')[-1]) if x[0].split('_')[-1].isdigit() else 0)
-        
-        for _, func_name in api_table_entries:
-            f.write(f'    {func_name},\n')
+        # FIXED: Iterate exactly in the order the JSON/enum was built
+        for cmd in commands:
+            func_name = f"api_{cmd['driver_func']}_wrapper"
+            f.write(f'    {func_name},  /* Matches {cmd["opcode"]} */\n')
+            
         f.write('};\n')
 
     print("\n✅ Generator Success! The following C wrappers have been built:")

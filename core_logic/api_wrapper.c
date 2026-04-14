@@ -82,15 +82,15 @@ u16 api_afeSpiRawReadMulti_wrapper(volatile u8 *operands) {
 }
 
 /* ------------------------------------------------------------------ */
-/* API dispatch table — order must match opcode_t enum                */
+/* API dispatch table — order perfectly matches opcode_t enum         */
 /* ------------------------------------------------------------------ */
 
 api_func_ptr api_table[API_TABLE_SIZE] = {
-    api_afeSpiRawWrite_wrapper,
-    api_afeSpiBurstWrite_wrapper,
-    api_afeSpiRawWriteMulti_wrapper,
-    api_afeSpiBurstWriteMulti_wrapper,
-    api_afeSpiRawRead_wrapper,
-    api_afeSpiBurstRead_wrapper,
-    api_afeSpiRawReadMulti_wrapper,
+    api_afeSpiRawWrite_wrapper,  /* Matches OPCODE_SPI_RAW_WRITE */
+    api_afeSpiRawRead_wrapper,  /* Matches OPCODE_SPI_RAW_READ */
+    api_afeSpiBurstWrite_wrapper,  /* Matches OPCODE_SPI_BURST_WRITE */
+    api_afeSpiBurstRead_wrapper,  /* Matches OPCODE_SPI_BURST_READ */
+    api_afeSpiRawWriteMulti_wrapper,  /* Matches OPCODE_SPI_RAW_WRITE_MULTI */
+    api_afeSpiRawReadMulti_wrapper,  /* Matches OPCODE_SPI_RAW_READ_MULTI */
+    api_afeSpiBurstWriteMulti_wrapper,  /* Matches OPCODE_SPI_BURST_WRITE_MULTI */
 };
