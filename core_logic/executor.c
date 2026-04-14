@@ -1,5 +1,5 @@
 #include "executor.h"
-#include "axi_regs.h"
+#include "../axi_regs.h"
 #include "api_wrapper.h"
 #include "afe_drivers.h" 
 

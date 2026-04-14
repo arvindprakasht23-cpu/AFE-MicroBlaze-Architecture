@@ -1,5 +1,6 @@
 import re
 import json
+import os
 
 # Reverse dictionary: Translates C data types back into your JSON tags
 REVERSE_TYPE_MAP = {
@@ -8,14 +9,18 @@ REVERSE_TYPE_MAP = {
     "uint32_t": "U32"
 }
 
-def parse_header_to_json(header_filename="afe_drivers.h", json_filename="commands.json"):
+# UPDATE: Set header_filename to point to the core_logic directory
+def parse_header_to_json(header_filename="../core_logic/afe_drivers.h", json_filename="commands.json"):
     commands_list = []
     
     try:
         with open(header_filename, 'r') as file:
             lines = file.readlines()
     except FileNotFoundError:
-        print(f"Error: Could not find {header_filename}. Make sure the vendor header is in the same folder.")
+        # Updated error message to reflect the modular folder structure
+        print(f"Error: Could not find {header_filename}.")
+        print(f"Current working directory: {os.getcwd()}")
+        print("Ensure 'afe_drivers.h' is located in the '../core_logic/' folder relative to this script.")
         return
 
     func_pattern = re.compile(r'uint32_t\s+([a-zA-Z0-9_]+)\s*\((.*?)\);')
@@ -74,7 +79,7 @@ def parse_header_to_json(header_filename="afe_drivers.h", json_filename="command
     with open(json_filename, 'w') as outfile:
         json.dump({"commands": commands_list}, outfile, indent=4)
         
-    print(f"✅ Scraper Success! Extracted {opcode_counter} APIs with Struct Memory Mapping.")
+    print(f"✅ Scraper Success! Extracted {opcode_counter} APIs from '{header_filename}'.")
 
 if __name__ == "__main__":
     parse_header_to_json()

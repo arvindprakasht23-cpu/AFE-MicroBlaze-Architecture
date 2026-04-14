@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "command_dict.h"
-#include "axi_regs.h"
+#include "../axi_regs.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

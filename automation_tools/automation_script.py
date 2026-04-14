@@ -1,4 +1,5 @@
 import json
+import os
 
 TYPE_MAP = {
     "U8": {"c_type": "uint8_t", "arg_enum": "ARG_U8"},
@@ -157,8 +158,6 @@ const command_meta_t cmd_dict[] = {\n""")
     with open('api_wrapper.c', 'w') as f:
         f.write("""/*
  * api_wrapper.c
- *
- * Created on: Apr 7, 2026
  * Author: PSG_TI_TEAM
  */
 
@@ -207,10 +206,7 @@ const command_meta_t cmd_dict[] = {\n""")
             f.write('}\n\n')
 
         f.write("/* ------------------------------------------------------------------ */\n")
-        f.write("/* Read wrappers — result register layout:                            */\n")
-        f.write("/* */\n")
-        f.write("/* Raw  read: [uint8_t readVal]                                     */\n")
-        f.write("/* Burst read: [uint16_t dataArraySize][uint8_t data[dataArraySize]]*/\n")
+        f.write("/* Read wrappers — result register layout matching                    */\n")
         f.write("/* ------------------------------------------------------------------ */\n\n")
 
         for cmd in commands:
@@ -229,10 +225,6 @@ const command_meta_t cmd_dict[] = {\n""")
                 f.write('    if (args.dataArraySize > MAX_BURST_SIZE) {\n')
                 f.write('        args.dataArraySize = MAX_BURST_SIZE;\n')
                 f.write('    }\n\n')
-                f.write('    /*\n     * Result: dataArraySize written first so the host knows how many\n')
-                f.write('     * bytes to collect, followed immediately by the data bytes.\n     */\n')
-            elif "RawReadMulti" not in cmd["name"]:
-                f.write('    /* Result: single byte at HW_RESULT_BASE */\n')
 
             f.write(f'    Result_{cmd["name"]}_t *result = (Result_{cmd["name"]}_t *)HW_RESULT_BASE;\n')
             
@@ -251,10 +243,7 @@ const command_meta_t cmd_dict[] = {\n""")
 
             param_str = ", ".join(params)
             
-            if "RawReadMulti" in cmd["name"]:
-                f.write(f'        return (u16){cmd["driver_func"]}({param_str});\n')
-            else:
-                f.write(f'    return (u16){cmd["driver_func"]}({param_str});\n')
+            f.write(f'    return (u16){cmd["driver_func"]}({param_str});\n')
             f.write('}\n\n')
 
         f.write("/* ------------------------------------------------------------------ */\n")
@@ -262,28 +251,18 @@ const command_meta_t cmd_dict[] = {\n""")
         f.write("/* ------------------------------------------------------------------ */\n\n")
         f.write('api_func_ptr api_table[API_TABLE_SIZE] = {\n')
         
+        # Sort based on the integer value at the end of the opcode string to ensure alignment
         api_table_entries.sort(key=lambda x: int(x[0].split('_')[-1]) if x[0].split('_')[-1].isdigit() else 0)
         
-        comment_map = {
-            "api_afeSpiRawWrite_wrapper": "/* 0: OPCODE_SPI_RAW_WRITE        */",
-            "api_afeSpiRawRead_wrapper": "/* 1: OPCODE_SPI_RAW_READ         */",
-            "api_afeSpiBurstWrite_wrapper": "/* 2: OPCODE_SPI_BURST_WRITE      */",
-            "api_afeSpiBurstRead_wrapper": "/* 3: OPCODE_SPI_BURST_READ       */",
-            "api_afeSpiRawWriteMulti_wrapper": "/* 4: OPCODE_SPI_RAW_WRITE_MULTI  */",
-            "api_afeSpiRawReadMulti_wrapper": "/* 5: OPCODE_SPI_RAW_READ_MULTI   */",
-            "api_afeSpiBurstWriteMulti_wrapper": "/* 6: OPCODE_SPI_BURST_WRITE_MULTI*/"
-        }
-        
         for _, func_name in api_table_entries:
-            comment = comment_map.get(func_name, "")
-            f.write(f'    {func_name}, {" " * max(0, 31 - len(func_name))}{comment}\n')
+            f.write(f'    {func_name},\n')
         f.write('};\n')
 
-    print("\n✅ Automation ran successfully and following files are created:")
-    print("1. command_dict.h")
-    print("2. command_dict.c")
-    print("3. api_wrapper.h")
-    print("4. api_wrapper.c\n")
+    print("\n✅ Generator Success! The following C wrappers have been built:")
+    print("  -> command_dict.h")
+    print("  -> command_dict.c")
+    print("  -> api_wrapper.h")
+    print("  -> api_wrapper.c\n")
 
 if __name__ == "__main__":
     generate_firmware()
