@@ -10,9 +10,9 @@
 #define HW_OPERAND_BASE ((volatile u8 *)(REG_BASE_ADDR + 0x00)) 
 #define HW_RESULT_BASE  ((volatile u8 *)(REG_BASE_ADDR + 0x24)) 
 
-#define REG_OPCODE      ((volatile u8 *)(REG_BASE_ADDR + 0x44))
-#define REG_CMD         ((volatile u8 *)(REG_BASE_ADDR + 0x48))
-#define REG_STATUS      ((volatile u16 *)(REG_BASE_ADDR + 0x4C))
+#define REG_OPCODE      ((volatile u8 *)(REG_BASE_ADDR + 0x20))
+#define REG_CMD         ((volatile u8 *)(REG_BASE_ADDR + 0x21))
+#define REG_STATUS      ((volatile u16 *)(REG_BASE_ADDR + 0x22))
 
 #define WRITE_OPCODE(val) (*REG_OPCODE = (val))
 #define READ_OPCODE()     (*REG_OPCODE)
