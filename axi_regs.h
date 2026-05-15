@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "xil_types.h"
 
-// Base address of your custom AXI IP
+// Base address of  custom AXI IP
 #define REG_BASE_ADDR 0x44A00000
 
 #define HW_OPERAND_BASE ((volatile u8 *)(REG_BASE_ADDR + 0x00)) 
